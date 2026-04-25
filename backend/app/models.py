@@ -49,6 +49,7 @@ class Submission(Base):
     
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     survey_id = Column(String, ForeignKey("surveys.id", ondelete="CASCADE"))
+    ip_address = Column(String(50))
     submitted_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     
     survey = relationship("Survey", back_populates="submissions")

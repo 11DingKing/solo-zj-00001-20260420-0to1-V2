@@ -31,6 +31,7 @@ CREATE TABLE options (
 CREATE TABLE submissions (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     survey_id UUID REFERENCES surveys(id) ON DELETE CASCADE,
+    ip_address VARCHAR(50),
     submitted_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -53,4 +54,9 @@ CREATE INDEX idx_surveys_published ON surveys(is_published);
 CREATE INDEX idx_questions_survey ON questions(survey_id);
 CREATE INDEX idx_options_question ON options(question_id);
 CREATE INDEX idx_submissions_survey ON submissions(survey_id);
+CREATE INDEX idx_submissions_survey_ip ON submissions(survey_id, ip_address);
+CREATE INDEX idx_submissions_survey_ip_time ON submissions(survey_id, ip_address, submitted_at);
 CREATE INDEX idx_answers_submission ON answers(submission_id);
+CREATE INDEX idx_answers_question ON answers(question_id);
+CREATE INDEX idx_answer_options_answer ON answer_options(answer_id);
+CREATE INDEX idx_answer_options_option ON answer_options(option_id);
