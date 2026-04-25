@@ -1,4 +1,5 @@
-from sqlalchemy import Column, String, Text, Boolean, Integer, DateTime, ForeignKey
+from sqlalchemy import Column, Text, Boolean, Integer, DateTime, ForeignKey
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from datetime import datetime
 import uuid
@@ -7,8 +8,8 @@ from app.database import Base
 class Survey(Base):
     __tablename__ = "surveys"
     
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    title = Column(String(255), nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    title = Column(Text, nullable=False)
     description = Column(Text)
     deadline = Column(DateTime(timezone=True))
     max_submissions = Column(Integer)
@@ -21,9 +22,9 @@ class Survey(Base):
 class Question(Base):
     __tablename__ = "questions"
     
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    survey_id = Column(String, ForeignKey("surveys.id", ondelete="CASCADE"))
-    type = Column(String(50), nullable=False)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    survey_id = Column(UUID(as_uuid=True), ForeignKey("surveys.id", ondelete="CASCADE"))
+    type = Column(Text, nullable=False)
     text = Column(Text, nullable=False)
     is_required = Column(Boolean, default=False)
     order = Column("order", Integer, nullable=False, quote=True)
@@ -36,8 +37,8 @@ class Question(Base):
 class Option(Base):
     __tablename__ = "options"
     
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    question_id = Column(String, ForeignKey("questions.id", ondelete="CASCADE"))
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    question_id = Column(UUID(as_uuid=True), ForeignKey("questions.id", ondelete="CASCADE"))
     text = Column(Text, nullable=False)
     order = Column("order", Integer, nullable=False, quote=True)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
@@ -47,9 +48,9 @@ class Option(Base):
 class Submission(Base):
     __tablename__ = "submissions"
     
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    survey_id = Column(String, ForeignKey("surveys.id", ondelete="CASCADE"))
-    ip_address = Column(String(50))
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    survey_id = Column(UUID(as_uuid=True), ForeignKey("surveys.id", ondelete="CASCADE"))
+    ip_address = Column(Text)
     submitted_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     
     survey = relationship("Survey", back_populates="submissions")
@@ -58,9 +59,9 @@ class Submission(Base):
 class Answer(Base):
     __tablename__ = "answers"
     
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    submission_id = Column(String, ForeignKey("submissions.id", ondelete="CASCADE"))
-    question_id = Column(String, ForeignKey("questions.id", ondelete="CASCADE"))
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    submission_id = Column(UUID(as_uuid=True), ForeignKey("submissions.id", ondelete="CASCADE"))
+    question_id = Column(UUID(as_uuid=True), ForeignKey("questions.id", ondelete="CASCADE"))
     text = Column(Text)
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)
     
@@ -70,7 +71,7 @@ class Answer(Base):
 class AnswerOptions(Base):
     __tablename__ = "answer_options"
     
-    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    answer_id = Column(String, ForeignKey("answers.id", ondelete="CASCADE"))
-    option_id = Column(String, ForeignKey("options.id", ondelete="CASCADE"))
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    answer_id = Column(UUID(as_uuid=True), ForeignKey("answers.id", ondelete="CASCADE"))
+    option_id = Column(UUID(as_uuid=True), ForeignKey("options.id", ondelete="CASCADE"))
     created_at = Column(DateTime(timezone=True), default=datetime.utcnow)

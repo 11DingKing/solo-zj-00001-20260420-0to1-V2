@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, and_
 from typing import List, Optional
 from datetime import datetime, timedelta
+import uuid
 from app.database import get_db
 from app.models import Survey, Question, Option, Submission, Answer, AnswerOptions
 from app.schemas import (
@@ -102,7 +103,7 @@ def list_surveys(db: Session = Depends(get_db)):
     return results
 
 @router.get("/surveys/{survey_id}", response_model=SurveyResponse)
-def get_survey(survey_id: str, db: Session = Depends(get_db)):
+def get_survey(survey_id: uuid.UUID, db: Session = Depends(get_db)):
     survey = db.query(Survey).filter(Survey.id == survey_id).first()
     if not survey:
         raise HTTPException(status_code=404, detail="问卷不存在")
@@ -125,7 +126,7 @@ def get_survey(survey_id: str, db: Session = Depends(get_db)):
     return response
 
 @router.put("/surveys/{survey_id}", response_model=SurveyResponse)
-def update_survey(survey_id: str, survey_data: SurveyUpdate, db: Session = Depends(get_db)):
+def update_survey(survey_id: uuid.UUID, survey_data: SurveyUpdate, db: Session = Depends(get_db)):
     survey = db.query(Survey).filter(Survey.id == survey_id).first()
     if not survey:
         raise HTTPException(status_code=404, detail="问卷不存在")
@@ -155,7 +156,7 @@ def update_survey(survey_id: str, survey_data: SurveyUpdate, db: Session = Depen
     return response
 
 @router.delete("/surveys/{survey_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_survey(survey_id: str, db: Session = Depends(get_db)):
+def delete_survey(survey_id: uuid.UUID, db: Session = Depends(get_db)):
     survey = db.query(Survey).filter(Survey.id == survey_id).first()
     if not survey:
         raise HTTPException(status_code=404, detail="问卷不存在")
@@ -283,7 +284,7 @@ def submit_survey(
         )
 
 @router.get("/surveys/{survey_id}/stats", response_model=SurveyStats)
-def get_survey_stats(survey_id: str, db: Session = Depends(get_db)):
+def get_survey_stats(survey_id: uuid.UUID, db: Session = Depends(get_db)):
     survey = db.query(Survey).filter(Survey.id == survey_id).first()
     if not survey:
         raise HTTPException(status_code=404, detail="问卷不存在")
