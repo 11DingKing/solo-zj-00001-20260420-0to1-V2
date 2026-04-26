@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import func, and_
 from typing import List, Optional
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import uuid
 from app.database import get_db
 from app.models import Survey, Question, Option, Submission, Answer, AnswerOptions
@@ -177,12 +177,12 @@ def submit_survey(
     if not survey.is_published:
         raise HTTPException(status_code=400, detail="问卷尚未发布")
     
-    if survey.deadline and datetime.utcnow() > survey.deadline:
+    if survey.deadline and datetime.now(timezone.utc) > survey.deadline:
         raise HTTPException(status_code=400, detail="问卷已过期")
     
     client_ip = get_client_ip(request)
     
-    twenty_four_hours_ago = datetime.utcnow() - timedelta(hours=24)
+    twenty_four_hours_ago = datetime.now(timezone.utc) - timedelta(hours=24)
     existing_submission = db.query(Submission).filter(
         Submission.survey_id == survey.id,
         Submission.ip_address == client_ip,
@@ -209,7 +209,7 @@ def submit_survey(
     for question in questions:
         if question.is_required:
             answer = next(
-                (a for a in submission_data.answers if a.question_id == question.id),
+                (a for a in submission_data.answers if str(a.question_id) == str(question.id)),
                 None
             )
             if not answer:
